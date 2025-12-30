@@ -304,15 +304,12 @@ const Index = () => {
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-lg border-b shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <nav className="flex items-center justify-between">
-            <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('hero')}>
+            <div className="cursor-pointer" onClick={() => scrollToSection('hero')}>
               <img 
-                src="https://cdn.poehali.dev/projects/1e9b3fdc-1def-4ae4-a2c5-511587273cc3/files/c3ca7afc-b1d0-4825-b58d-bd3bada39518.jpg"
-                alt="Логотип Живописная"
-                className="w-12 h-12 object-contain rounded-xl"
+                src="https://cdn.poehali.dev/files/Живописная 2.jpg"
+                alt="Арт-студия Живописная"
+                className="h-14 object-contain"
               />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-                Живописная
-              </h1>
             </div>
             
             <NavigationMenu className="hidden md:flex">
@@ -796,13 +793,12 @@ const Index = () => {
       <footer className="bg-gradient-to-r from-primary via-secondary to-accent text-white py-12">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="flex justify-center mb-4">
               <img 
-                src="https://cdn.poehali.dev/projects/1e9b3fdc-1def-4ae4-a2c5-511587273cc3/files/c3ca7afc-b1d0-4825-b58d-bd3bada39518.jpg"
-                alt="Логотип Живописная"
-                className="w-10 h-10 object-contain rounded-lg"
+                src="https://cdn.poehali.dev/files/Живописная 2.jpg"
+                alt="Арт-студия Живописная"
+                className="h-12 object-contain"
               />
-              <h3 className="text-2xl font-bold">Арт-студия "Живописная"</h3>
             </div>
             <p className="text-white/80 mb-6">Творчество без границ</p>
             <div className="flex justify-center gap-4">
