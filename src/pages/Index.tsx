@@ -11,8 +11,26 @@ import {
 } from '@/components/ui/navigation-menu';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
+
+interface ServiceDetails {
+  title: string;
+  age?: string;
+  icon: string;
+  description: string;
+  duration: string;
+  price: string;
+  groupSize: string;
+  includes: string[];
+}
 
 const Index = () => {
   const [formData, setFormData] = useState({
@@ -20,6 +38,8 @@ const Index = () => {
     phone: '',
     message: ''
   });
+  const [selectedService, setSelectedService] = useState<ServiceDetails | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,29 +55,193 @@ const Index = () => {
     element?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const kidsServices = [
-    { title: 'Рисование и лепка для малышей', age: '3-6 лет', icon: 'Palette' },
-    { title: 'Рисование для детей и подростков', age: '7+ лет', icon: 'Brush' },
-    { title: 'Керамика и лепка из глины', age: 'все возраста', icon: 'Sparkles' },
-    { title: 'Мультипликация', age: '7+ лет', icon: 'Film' },
-    { title: 'Бисероплетение и шитье', age: '8+ лет', icon: 'Scissors' },
-    { title: 'Иллюстрация в стиле анимэ', age: '10+ лет', icon: 'Sparkle' },
-    { title: 'Арт-терапия', age: 'все возраста', icon: 'Heart' },
-    { title: 'Бумагопластика', age: '6+ лет', icon: 'Origami' },
-    { title: 'Курс финансовой грамоты', age: '10+ лет', icon: 'DollarSign' },
-    { title: 'Мастер-классы по выходным', age: 'все возраста', icon: 'Star' },
-    { title: 'Творческая мастерская', age: 'все возраста', icon: 'Lightbulb' },
-    { title: 'Академический рисунок', age: '12+ лет', icon: 'PenTool' },
+  const kidsServices: ServiceDetails[] = [
+    { 
+      title: 'Рисование и лепка для малышей', 
+      age: '3-6 лет', 
+      icon: 'Palette',
+      description: 'Развитие мелкой моторики и творческих способностей через рисование и лепку. Занятия проходят в игровой форме.',
+      duration: '45 минут',
+      price: '2000 ₽/занятие',
+      groupSize: 'до 6 детей',
+      includes: ['Все материалы', 'Фартук и нарукавники', 'Чай и печенье', 'Фото работ']
+    },
+    { 
+      title: 'Рисование для детей и подростков', 
+      age: '7+ лет', 
+      icon: 'Brush',
+      description: 'Изучение различных техник рисования: акварель, гуашь, пастель, акрил. Развитие художественного вкуса.',
+      duration: '60 минут',
+      price: '2500 ₽/занятие',
+      groupSize: 'до 8 детей',
+      includes: ['Все материалы', 'Холсты и бумага', 'Индивидуальный подход', 'Работы домой']
+    },
+    { 
+      title: 'Керамика и лепка из глины', 
+      age: 'все возраста', 
+      icon: 'Sparkles',
+      description: 'Создание уникальных керамических изделий. Обучение работе на гончарном круге, лепке и росписи.',
+      duration: '90 минут',
+      price: '3000 ₽/занятие',
+      groupSize: 'до 6 человек',
+      includes: ['Глина и инструменты', 'Обжиг изделий', 'Краски для росписи', 'Упаковка готовых работ']
+    },
+    { 
+      title: 'Мультипликация', 
+      age: '7+ лет', 
+      icon: 'Film',
+      description: 'Создание собственных мультфильмов от сценария до монтажа. Изучение основ анимации.',
+      duration: '90 минут',
+      price: '2800 ₽/занятие',
+      groupSize: 'до 8 детей',
+      includes: ['Оборудование', 'Материалы для съемки', 'Монтаж видео', 'Готовый мультфильм']
+    },
+    { 
+      title: 'Бисероплетение и шитье', 
+      age: '8+ лет', 
+      icon: 'Scissors',
+      description: 'Освоение техник рукоделия: создание украшений, игрушек, аксессуаров. Развитие усидчивости.',
+      duration: '60 минут',
+      price: '2200 ₽/занятие',
+      groupSize: 'до 8 детей',
+      includes: ['Бисер и нитки', 'Фурнитура', 'Инструменты', 'Схемы и шаблоны']
+    },
+    { 
+      title: 'Иллюстрация в стиле анимэ', 
+      age: '10+ лет', 
+      icon: 'Sparkle',
+      description: 'Обучение рисованию персонажей в стиле аниме и манга. От скетчей до полноцветных иллюстраций.',
+      duration: '90 минут',
+      price: '2700 ₽/занятие',
+      groupSize: 'до 10 детей',
+      includes: ['Маркеры и линеры', 'Бумага для скетчей', 'Референсы', 'Цифровые материалы']
+    },
+    { 
+      title: 'Арт-терапия', 
+      age: 'все возраста', 
+      icon: 'Heart',
+      description: 'Творческие практики для снятия стресса и эмоционального выражения. Работа с психологом.',
+      duration: '60 минут',
+      price: '3500 ₽/занятие',
+      groupSize: 'до 5 человек',
+      includes: ['Все материалы', 'Консультация психолога', 'Индивидуальный подход', 'Конфиденциальность']
+    },
+    { 
+      title: 'Бумагопластика', 
+      age: '6+ лет', 
+      icon: 'Origami',
+      description: 'Создание объемных композиций из бумаги: оригами, квиллинг, папье-маше.',
+      duration: '60 минут',
+      price: '2000 ₽/занятие',
+      groupSize: 'до 8 детей',
+      includes: ['Цветная бумага', 'Инструменты', 'Клей и материалы', 'Готовые работы']
+    },
+    { 
+      title: 'Курс финансовой грамоты', 
+      age: '10+ лет', 
+      icon: 'DollarSign',
+      description: 'Обучение основам финансовой грамотности через игры и творческие проекты.',
+      duration: '90 минут',
+      price: '2500 ₽/занятие',
+      groupSize: 'до 12 детей',
+      includes: ['Рабочие тетради', 'Игровые материалы', 'Сертификат', 'Методические пособия']
+    },
+    { 
+      title: 'Мастер-классы по выходным', 
+      age: 'все возраста', 
+      icon: 'Star',
+      description: 'Разнообразные творческие мастер-классы каждые выходные. Новая тема каждую неделю.',
+      duration: '120 минут',
+      price: '1500 ₽/мк',
+      groupSize: 'до 15 человек',
+      includes: ['Все материалы', 'Готовая работа', 'Фото процесса', 'Чай и угощения']
+    },
+    { 
+      title: 'Творческая мастерская', 
+      age: 'все возраста', 
+      icon: 'Lightbulb',
+      description: 'Свободное творчество с доступом ко всем материалам студии. Помощь преподавателя.',
+      duration: '120 минут',
+      price: '2000 ₽/сессия',
+      groupSize: 'до 10 человек',
+      includes: ['Доступ к материалам', 'Консультации', 'Рабочее место', 'Хранение работ']
+    },
+    { 
+      title: 'Академический рисунок', 
+      age: '12+ лет', 
+      icon: 'PenTool',
+      description: 'Подготовка к поступлению в художественные школы и ВУЗы. Портфолио и техника.',
+      duration: '120 минут',
+      price: '3500 ₽/занятие',
+      groupSize: 'до 6 человек',
+      includes: ['Все материалы', 'Индивидуальная программа', 'Портфолио', 'Консультации']
+    },
   ];
 
-  const adultsServices = [
-    { title: 'Свободная живопись', icon: 'Paintbrush' },
-    { title: 'Академический рисунок', icon: 'PenLine' },
-    { title: 'Мастер-классы по выходным', icon: 'Calendar' },
-    { title: 'Арт-вечеринки', icon: 'PartyPopper' },
-    { title: 'Арт-свидания', icon: 'Heart' },
-    { title: 'Картины из эпоксидной смолы', icon: 'Droplet' },
-    { title: 'Нейрографика', icon: 'Network' },
+  const adultsServices: ServiceDetails[] = [
+    { 
+      title: 'Свободная живопись', 
+      icon: 'Paintbrush',
+      description: 'Раскройте свой творческий потенциал! Рисуйте в любой технике под руководством опытного художника.',
+      duration: '120 минут',
+      price: '3000 ₽/занятие',
+      groupSize: 'до 10 человек',
+      includes: ['Все материалы', 'Холст/бумага', 'Мольберт', 'Напитки']
+    },
+    { 
+      title: 'Академический рисунок', 
+      icon: 'PenLine',
+      description: 'Классическое художественное образование для взрослых. Техника, композиция, перспектива.',
+      duration: '120 минут',
+      price: '3500 ₽/занятие',
+      groupSize: 'до 8 человек',
+      includes: ['Все материалы', 'Индивидуальная программа', 'Домашние задания', 'Консультации']
+    },
+    { 
+      title: 'Мастер-классы по выходным', 
+      icon: 'Calendar',
+      description: 'Тематические мастер-классы для взрослых. Новая техника или направление каждую неделю.',
+      duration: '150 минут',
+      price: '2500 ₽/мк',
+      groupSize: 'до 15 человек',
+      includes: ['Все материалы', 'Готовая работа', 'Фото', 'Вино и закуски']
+    },
+    { 
+      title: 'Арт-вечеринки', 
+      icon: 'PartyPopper',
+      description: 'Творческие вечеринки для компаний друзей. Рисование в непринужденной атмосфере с вином.',
+      duration: '180 минут',
+      price: '2800 ₽/чел',
+      groupSize: 'от 6 человек',
+      includes: ['Все материалы', 'Холст 40х50', 'Напитки', 'Музыка и веселье']
+    },
+    { 
+      title: 'Арт-свидания', 
+      icon: 'Heart',
+      description: 'Романтические занятия для пар. Создайте совместную картину в атмосфере уюта.',
+      duration: '120 минут',
+      price: '5000 ₽/пара',
+      groupSize: '2 человека',
+      includes: ['Все материалы', 'Два холста', 'Шампанское', 'Романтическая атмосфера']
+    },
+    { 
+      title: 'Картины из эпоксидной смолы', 
+      icon: 'Droplet',
+      description: 'Создание современных интерьерных картин в технике Resin Art. Уникальные работы.',
+      duration: '180 минут',
+      price: '4500 ₽/занятие',
+      groupSize: 'до 6 человек',
+      includes: ['Эпоксидная смола', 'Пигменты', 'Основа', 'Защита работы']
+    },
+    { 
+      title: 'Нейрографика', 
+      icon: 'Network',
+      description: 'Медитативная практика рисования для трансформации и самопознания.',
+      duration: '120 минут',
+      price: '3200 ₽/занятие',
+      groupSize: 'до 8 человек',
+      includes: ['Все материалы', 'Авторская методика', 'Психологическая поддержка', 'Чай']
+    },
   ];
 
   const teachers = [
@@ -70,6 +254,50 @@ const Index = () => {
     { day: 'Понедельник-Пятница', time: '10:00 - 20:00' },
     { day: 'Суббота-Воскресенье', time: '10:00 - 18:00' },
   ];
+
+  const reviews = [
+    {
+      name: 'Елена Соколова',
+      role: 'Мама Маши (5 лет)',
+      text: 'Дочка с радостью бежит на занятия! За полгода научилась смешивать цвета, делать композиции. Преподаватели — настоящие профессионалы с детьми.',
+      rating: 5
+    },
+    {
+      name: 'Алексей Морозов',
+      role: 'Участник арт-вечеринок',
+      text: 'Отличное место для отдыха! Приходим с друзьями каждый месяц. Атмосфера супер, все материалы предоставляют, работы получаются красивые.',
+      rating: 5
+    },
+    {
+      name: 'Ирина Васильева',
+      role: 'Ученица курса живописи',
+      text: 'Всегда мечтала научиться рисовать. Здесь я наконец-то воплотила мечту! Спасибо Анне Петровне за терпение и профессионализм!',
+      rating: 5
+    },
+    {
+      name: 'Сергей и Ольга',
+      role: 'Пара с арт-свидания',
+      text: 'Провели незабываемый вечер! Романтично, креативно и очень весело. Наши картины теперь висят дома и напоминают об этом дне.',
+      rating: 5
+    },
+    {
+      name: 'Мария Ковалева',
+      role: 'Мама Артема (14 лет)',
+      text: 'Сын готовится к поступлению в художественный колледж. Курс академического рисунка дал отличную базу. Портфолио получилось сильным!',
+      rating: 5
+    },
+    {
+      name: 'Дмитрий Петров',
+      role: 'Участник мастер-класса по керамике',
+      text: 'Никогда не работал с глиной — был приятно удивлен! Преподаватель помог создать красивую вазу. Теперь хожу регулярно.',
+      rating: 5
+    },
+  ];
+
+  const openServiceModal = (service: ServiceDetails) => {
+    setSelectedService(service);
+    setIsDialogOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-purple-50">
@@ -130,6 +358,12 @@ const Index = () => {
                 <NavigationMenuItem>
                   <Button variant="ghost" onClick={() => scrollToSection('gallery')}>
                     Галерея
+                  </Button>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <Button variant="ghost" onClick={() => scrollToSection('reviews')}>
+                    Отзывы
                   </Button>
                 </NavigationMenuItem>
 
@@ -249,6 +483,7 @@ const Index = () => {
               {kidsServices.map((service, index) => (
                 <Card 
                   key={index} 
+                  onClick={() => openServiceModal(service)}
                   className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border-2 hover:border-primary"
                 >
                   <CardHeader>
@@ -298,7 +533,8 @@ const Index = () => {
               {adultsServices.map((service, index) => (
                 <Card 
                   key={index} 
-                  className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 hover:border-accent"
+                  onClick={() => openServiceModal(service)}
+                  className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 hover:border-accent cursor-pointer"
                 >
                   <CardHeader className="pb-4">
                     <div className="w-16 h-16 bg-gradient-to-br from-accent to-primary rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -420,7 +656,44 @@ const Index = () => {
           </div>
         </section>
 
-        <section id="contact" className="py-20 bg-white">
+        <section id="reviews" className="py-20 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold mb-4">Отзывы</h2>
+              <p className="text-xl text-muted-foreground">
+                Что говорят наши ученики и их родители
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {reviews.map((review, index) => (
+                <Card key={index} className="border-2 hover:border-primary transition-all hover:shadow-xl">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center">
+                        <Icon name="User" className="text-white" size={24} />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">{review.name}</CardTitle>
+                        <CardDescription className="text-sm">{review.role}</CardDescription>
+                      </div>
+                    </div>
+                    <div className="flex gap-1 mb-2">
+                      {[...Array(review.rating)].map((_, i) => (
+                        <Icon key={i} name="Star" className="text-secondary fill-secondary" size={16} />
+                      ))}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground italic">"{review.text}"</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" className="py-20 bg-gradient-to-b from-purple-50 to-white">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-16">
@@ -539,6 +812,97 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedService && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center">
+                    <Icon name={selectedService.icon as any} className="text-white" size={32} />
+                  </div>
+                  <div>
+                    <DialogTitle className="text-2xl">{selectedService.title}</DialogTitle>
+                    {selectedService.age && (
+                      <DialogDescription className="text-lg font-medium text-primary mt-1">
+                        {selectedService.age}
+                      </DialogDescription>
+                    )}
+                  </div>
+                </div>
+              </DialogHeader>
+              
+              <div className="space-y-6">
+                <div>
+                  <h4 className="font-semibold mb-2 text-lg">Описание</h4>
+                  <p className="text-muted-foreground leading-relaxed">{selectedService.description}</p>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Icon name="Clock" className="text-primary" size={18} />
+                        <h5 className="font-semibold text-sm">Продолжительность</h5>
+                      </div>
+                      <p className="text-muted-foreground">{selectedService.duration}</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Icon name="DollarSign" className="text-secondary" size={18} />
+                        <h5 className="font-semibold text-sm">Стоимость</h5>
+                      </div>
+                      <p className="text-muted-foreground">{selectedService.price}</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Icon name="Users" className="text-accent" size={18} />
+                        <h5 className="font-semibold text-sm">Размер группы</h5>
+                      </div>
+                      <p className="text-muted-foreground">{selectedService.groupSize}</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-3 text-lg">Что входит в занятие</h4>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    {selectedService.includes.map((item, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Icon name="Check" className="text-primary" size={14} />
+                        </div>
+                        <span className="text-sm">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4">
+                  <Button 
+                    onClick={() => {
+                      setIsDialogOpen(false);
+                      scrollToSection('contact');
+                    }} 
+                    className="w-full" 
+                    size="lg"
+                  >
+                    Записаться на занятие
+                    <Icon name="ArrowRight" className="ml-2" size={18} />
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
